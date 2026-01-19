@@ -11,7 +11,7 @@ authors = [
   { name="aloima", email="acar.aloima@gmail.com" }
 ]
 license = { "text" = "BSD-3 Clause Clear License" }
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
