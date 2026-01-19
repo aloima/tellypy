@@ -26,27 +26,27 @@ class Value:
     def to_raw(self) -> str:
         match self.kind:
             case Kind.NULL:
-                return "+null\r\n"
+                return bytes("+null\r\n", "utf-8")
 
             case Kind.INTEGER:
-                return f":{self.data}\r\n"
+                return bytes(f":{self.data}\r\n", "utf-8")
 
             case Kind.DOUBLE:
-                return f",{self.data}\r\n"
+                return bytes(f",{self.data}\r\n", "utf-8")
 
             case Kind.SIMPLE_STRING:
-                return f"+{self.data}\r\n"
+                return bytes(f"+{self.data}\r\n", "utf-8")
 
             case Kind.BULK_STRING:
-                return f"${len(self.data)}\r\n{self.data}\r\n"
+                return bytes(f"${len(self.data)}\r\n{self.data}\r\n", "utf-8")
 
             case Kind.SIMPLE_ERROR:
-                return f"-{self.data}\r\n"
+                return bytes(f"-{self.data}\r\n", "utf-8")
 
             case Kind.ARRAY:
                 length = len(self.data)
-                data = [value.to_raw() for value in self.data]
-                return f"*{length}\r\n{"".join(data)}"
+                data = [value.to_raw().decode("utf-8") for value in self.data]
+                return bytes(f"*{length}\r\n{"".join(data)}", "utf-8")
 
             case _:
                 return ""
