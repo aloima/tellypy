@@ -11,6 +11,7 @@ class Protocol(Enum):
 
 
 class Client:
+    __id: int = -1
     __preconnected: bool = False
     __connected: bool = False
     __socket: socket.client = None
@@ -29,6 +30,8 @@ class Client:
             self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.__socket.connect((self.__host, self.__port))
             self.__preconnected = True
+
+            self.__id = self.execute_command("CLIENT ID").data
             self.execute_command(f"HELLO {protocol.value}")
 
             if set_info:
@@ -47,6 +50,9 @@ class Client:
 
     def is_connected(self) -> bool:
         return self.__connected
+
+    def get_id(self) -> int:
+        return self.__id
 
     def execute_command(self, command: str) -> Value:
         if not self.__preconnected:
