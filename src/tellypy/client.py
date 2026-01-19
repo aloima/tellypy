@@ -48,7 +48,7 @@ class Client:
     def is_connected(self) -> bool:
         return self.__connected
 
-    def execute_command(self, command: str):
+    def execute_command(self, command: str) -> Value:
         if not self.__preconnected:
             return
 
@@ -56,4 +56,4 @@ class Client:
         self.__socket.send(Value(data, Kind.ARRAY).to_raw())
         res = self.__socket.recv(1024)
 
-        return res
+        return Value.from_raw(memoryview(res))[0]
