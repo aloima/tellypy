@@ -90,7 +90,7 @@ class Value:
                         data.append(subvalue)
                         total += parsed
 
-                    return Value(data, Kind.SIMPLE_ERROR), total
+                    return Value(data, Kind.ARRAY), total
 
         return Value(None, Kind.NULL), 0
 
