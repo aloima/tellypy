@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tellypy"
+version = "0.1.0"
+description = "A client library for tellydb in Python."
+readme = "README.md"
+authors = [
+  { name="aloima", email="acar.aloima@gmail.com" }
+]
+license = { "text" = "BSD-3 Clause Clear License" }
+requires-python = ">=3.10"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
