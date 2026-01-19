@@ -9,38 +9,44 @@ class Kind(Enum):
     SIMPLE_STRING = 3
     BULK_STRING = 4
     SIMPLE_ERROR = 5
+    ARRAY = 6
     # BOOLEAN = 7
     # HASHTABLE = 8
     # LIST = 9
 
 
 class Value:
-    value: Any
+    data: Any
     kind: Kind
 
-    def __init__(self, value: Any, kind: Kind):
+    def __init__(self, data: Any, kind: Kind):
         self.kind = kind
-        self.value = value
+        self.data = data
 
     def to_raw(self) -> str:
-        match self.value:
+        match self.kind:
             case Kind.NULL:
                 return "+null\r\n"
 
             case Kind.INTEGER:
-                return f":{self.value}\r\n"
+                return f":{self.data}\r\n"
 
             case Kind.DOUBLE:
-                return f",{self.value}\r\n"
+                return f",{self.data}\r\n"
 
             case Kind.SIMPLE_STRING:
-                return f"+{self.value}\r\n"
+                return f"+{self.data}\r\n"
 
             case Kind.BULK_STRING:
-                return f"${len(self.value)}\r\n{self.value}\r\n"
+                return f"${len(self.data)}\r\n{self.data}\r\n"
 
             case Kind.SIMPLE_ERROR:
-                return f"-{self.value}\r\n"
+                return f"-{self.data}\r\n"
+
+            case Kind.ARRAY:
+                length = len(self.data)
+                data = [value.to_raw() for value in self.data]
+                return f"*{length}\r\n{"".join(data)}"
 
             case _:
                 return ""
