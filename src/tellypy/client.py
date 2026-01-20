@@ -60,6 +60,13 @@ class Client:
 
         data = [Value(data, Kind.BULK_STRING) for data in command.split()]
         self.__socket.send(Value(data, Kind.ARRAY).to_raw())
-        res = self.__socket.recv(1024)
+        res = bytearray()
 
-        return Value.from_raw(memoryview(res))[0]
+        while True:
+            buf = self.__socket.recv(1024)
+            res.extend(buf)
+
+            if len(buf) != 1024:
+                break
+
+        return Value.from_raw(memoryview(bytes(res)))[0]
