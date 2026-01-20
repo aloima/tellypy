@@ -1,18 +1,14 @@
 from importlib.metadata import version
-from enum import Enum
 import socket
 
 from .kinds import Value, Kind
-
-
-class Protocol(Enum):
-    RESP2 = 2
-    RESP3 = 3
+from .protocols import Protocol
 
 
 class Client:
     __id: int = -1
     __preconnected: bool = False
+    __protocol: Protocol = None
     __connected: bool = False
     __socket: socket.client = None
     __protocol: Protocol = None
@@ -32,6 +28,7 @@ class Client:
             self.__preconnected = True
 
             self.__id = self.execute_command("CLIENT ID").data
+            self.__protocol = protocol
             self.execute_command(f"HELLO {protocol.value}")
 
             if set_info:
@@ -59,7 +56,7 @@ class Client:
             return
 
         data = [Value(data, Kind.BULK_STRING) for data in command.split()]
-        self.__socket.send(Value(data, Kind.ARRAY).to_raw())
+        self.__socket.send(Value(data, Kind.ARRAY).to_raw(self.__protocol))
         res = bytearray()
 
         while True:
@@ -69,4 +66,4 @@ class Client:
             if len(buf) != 1024:
                 break
 
-        return Value.from_raw(memoryview(bytes(res)))[0]
+        return Value.from_raw(self.__protocol, memoryview(bytes(res)))[0]
