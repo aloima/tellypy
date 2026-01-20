@@ -17,9 +17,8 @@ class Kind(Enum):
     BULK_STRING = ord("$")
     SIMPLE_ERROR = ord("-")
     ARRAY = ord("*")
+    MAP = ord("%")
     BOOLEAN = ord("#")
-    # HASHTABLE = 8
-    # LIST = 9
 
 
 class Value:
@@ -113,6 +112,26 @@ class Value:
 
                     return Value(data, Kind.ARRAY), total
 
+            case Kind.MAP.value:
+                idx = value.index(r_a)
+                valid = idx != 1 and value[idx + 1] == n_a
+
+                if protocol == Protocol.RESP3 and valid:
+                    count = int(value[1:idx])
+                    data: dict[Value, Value] = dict()
+                    total = idx + 2
+
+                    for _ in range(count):
+                        _key, n = Value.from_raw(protocol, value[total:])
+                        total += n
+
+                        _value, n = Value.from_raw(protocol, value[total:])
+                        total += n
+
+                        data[_key] = _value
+
+                    return Value(data, Kind.MAP), total
+
             case Kind.BOOLEAN.value:
                 valid = (value[1] == t_a or value[1] == f_a)
 
@@ -155,6 +174,23 @@ class Value:
                 ]
 
                 return bytes(f"*{length}\r\n{"".join(data)}", "utf-8")
+
+            case Kind.MAP:
+                length = len(self.data)
+                data = [
+                    "".join([
+                        key.to_raw(protocol).decode("utf-8"),
+                        value.to_raw(protocol).decode("utf-8")
+                    ]) for key, value in self.data.items()
+                ]
+
+                match protocol:
+                    case Protocol.RESP2:
+                        length *= 2
+                        return bytes(f"*{length}\r\n{"".join(data)}", "utf-8")
+
+                    case Protocol.RESP3:
+                        return bytes(f"%{length}\r\n{"".join(data)}", "utf-8")
 
             case Kind.BOOLEAN:
                 match protocol:
