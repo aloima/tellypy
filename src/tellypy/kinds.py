@@ -62,9 +62,10 @@ class Value:
             case Kind.BULK_STRING.value:
                 start = value.index(r_a)
                 length = int(value[1:start])
+                start += 2  # pass \r\n
 
-                data = value[(start + 2):(start + length)].tobytes()
-                n = start + length + 4
+                data = value[start:(start + length)].tobytes()
+                n = start + length + 2
 
                 return Value(data.decode("utf-8"), Kind.BULK_STRING), n
 
